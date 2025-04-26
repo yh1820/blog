@@ -74,7 +74,7 @@
     <article id="post-hello-world" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/blog/2025/04/26/hello-world/" class="article-date">
-  <time class="dt-published" datetime="2025-04-26T07:55:23.930Z" itemprop="datePublished">2025-04-26</time>
+  <time class="dt-published" datetime="2025-04-26T11:18:14.813Z" itemprop="datePublished">2025-04-26</time>
 </a>
     
   </div>
@@ -110,7 +110,83 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://yh1820.github.io/blog/2025/04/26/hello-world/" data-id="cm9xxejex0000m0or1g7icf2h" data-title="Hello World" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://yh1820.github.io/blog/2025/04/26/hello-world/" data-id="cm9y4nhgy0001ksqchtyyarmd" data-title="Hello World" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-MySQL中的GROUP-CONCAT" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/blog/2025/04/26/MySQL%E4%B8%AD%E7%9A%84GROUP-CONCAT/" class="article-date">
+  <time class="dt-published" datetime="2025-04-26T10:35:22.000Z" itemprop="datePublished">2025-04-26</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/blog/2025/04/26/MySQL%E4%B8%AD%E7%9A%84GROUP-CONCAT/">MySQL中的GROUP_CONCAT</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>介于本人是一名卑微小前端，很多后端知识有所欠缺，在接触后端业务开发的时候，在部分需求用到了group by，但是又受到部分限制，学习到了GROUP_CONCAT这个函数，在此记录一下，以便日后查阅。</p>
+<h3 id="什么是GROUP-CONCAT"><a href="#什么是GROUP-CONCAT" class="headerlink" title="什么是GROUP_CONCAT"></a>什么是GROUP_CONCAT</h3><p>GROUP_CONCAT函数是MySQL中的一个聚合函数，用于将分组后的结果连接成一个字符串。它可以将多行数据合并成一行，并且可以指定连接的分隔符。<br>语法如下：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GROUP_CONCAT([<span class="keyword">DISTINCT</span>] 要连接的字段 [<span class="keyword">ORDER</span> <span class="keyword">BY</span> 排序字段 <span class="keyword">ASC</span><span class="operator">/</span><span class="keyword">DESC</span>] [SEPARATOR <span class="string">&#x27;分隔符&#x27;</span>])</span><br></pre></td></tr></table></figure>
+<p>其中，DISTINCT表示去重，ORDER BY表示排序，SEPARATOR表示分隔符。</p>
+<p>太抽象了，看不懂~</p>
+<h3 id="在栗子中学习"><a href="#在栗子中学习" class="headerlink" title="在栗子中学习"></a>在栗子中学习</h3><p>大学生选体育课，每人选择一门课程，建表如下：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> `student` (</span><br><span class="line">  `id` <span class="type">int</span>(<span class="number">11</span>) <span class="keyword">NOT NULL</span> AUTO_INCREMENT,</span><br><span class="line">  `name` <span class="type">varchar</span>(<span class="number">255</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span>,</span><br><span class="line">  `age` <span class="type">int</span>(<span class="number">11</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span>,</span><br><span class="line">  `class` <span class="type">varchar</span>(<span class="number">255</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span>,</span><br><span class="line">  ...</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>需求是这样，找出选课人数大于50的课程，并将每门课对应的学生信息、学生数量找出来，拼成一个数组，结构如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">[</span></span><br><span class="line">  <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;class&quot;</span><span class="punctuation">:</span> <span class="string">&quot;足球&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;selectNum&quot;</span><span class="punctuation">:</span> <span class="number">2</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;student&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">      <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;id&quot;</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;张三&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;age&quot;</span><span class="punctuation">:</span> <span class="number">18</span></span><br><span class="line">      <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;id&quot;</span><span class="punctuation">:</span> <span class="number">2</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;李四&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;age&quot;</span><span class="punctuation">:</span> <span class="number">19</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">]</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;class&quot;</span><span class="punctuation">:</span> <span class="string">&quot;篮球&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;selectNum&quot;</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;student&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">      <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;id&quot;</span><span class="punctuation">:</span> <span class="number">3</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;王五&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;age&quot;</span><span class="punctuation">:</span> <span class="number">20</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">]</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">]</span></span><br></pre></td></tr></table></figure>
+<p>我第一个想到的就是group by，于是开开心心地写下了如下代码：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> student</span><br><span class="line"><span class="keyword">WHERE</span> class <span class="keyword">in</span> (</span><br><span class="line">  <span class="keyword">SELECT</span> class</span><br><span class="line">  <span class="keyword">FROM</span> student</span><br><span class="line">  <span class="keyword">GROUP</span> <span class="keyword">BY</span> class</span><br><span class="line">  <span class="keyword">HAVING</span> <span class="built_in">COUNT</span>(<span class="operator">*</span>) <span class="operator">&gt;</span> <span class="number">500</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>后端同学一看，天塌了，in string类型的参数，有点难崩啊。然后给我介绍了下<strong>GROUP_CONCAT</strong>，于是我又开始疯狂DeepSeek</p>
+<p>GROUP_CONCAT函数可以将group by归类的多行数据合并成一行，并且可以指定连接的分隔符，也就是说可以这样子查:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> class, GROUP_CONCAT(id) <span class="keyword">as</span> ids</span><br><span class="line"><span class="keyword">FROM</span> student</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> class</span><br><span class="line"><span class="keyword">HAVING</span> <span class="built_in">COUNT</span>(<span class="operator">*</span>) <span class="operator">&gt;</span> <span class="number">500</span></span><br></pre></td></tr></table></figure>
+<p>结果如下：</p>
+<table>
+<thead>
+<tr>
+<th>class</th>
+<th>ids</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>足球</td>
+<td>1,2,3,4,5…</td>
+</tr>
+<tr>
+<td>篮球</td>
+<td>6,7,8,9,10…</td>
+</tr>
+<tr>
+<td>排球</td>
+<td>11,12,13,14,15…</td>
+</tr>
+</tbody></table>
+<p>然后直接去in ids，就可以了。</p>
+<p>这样子可以避免<strong>回表</strong>（select 中的查询字段不是索引（不在叶子结点上）。需要从磁盘中获取字段数据，多一次磁盘io查询）</p>
+<p>虽说没啥用，效果都差不多，但是能优化一点是一点，也学到了新的知识，岂不美哉~</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://yh1820.github.io/blog/2025/04/26/MySQL%E4%B8%AD%E7%9A%84GROUP-CONCAT/" data-id="cm9y4nhgu0000ksqc13bahdp1" data-title="MySQL中的GROUP_CONCAT" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -197,7 +273,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://yh1820.github.io/blog/2025/04/26/%E5%9C%A8github%E4%B8%8A%E9%83%A8%E7%BD%B2hexo/" data-id="cm9xxejf20001m0or2866fme7" data-title="在github上部署hexo" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://yh1820.github.io/blog/2025/04/26/%E5%9C%A8github%E4%B8%8A%E9%83%A8%E7%BD%B2hexo/" data-id="cm9y4nhgz0002ksqc7gg27gu2" data-title="在github上部署hexo" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -241,6 +317,10 @@
         
           <li>
             <a href="/blog/2025/04/26/hello-world/">Hello World</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2025/04/26/MySQL%E4%B8%AD%E7%9A%84GROUP-CONCAT/">MySQL中的GROUP_CONCAT</a>
           </li>
         
           <li>
