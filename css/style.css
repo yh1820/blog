@@ -1365,6 +1365,7 @@ a.article-title:hover {
   width: 54px;
   height: 54px;
   background-image: url("/blog/eye.jpg");
+  border-radius: 50%;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center center;
